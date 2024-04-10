@@ -25,15 +25,15 @@ type ReqUserData struct {
 }
 
 // GetUserInfo 调用用户中心接口获取用户信息
-func GetUserInfo(cookieStr, apiUrl string) (ReqUser, int, error) {
-	sid, err := getSid(cookieStr)
+func (a *Account) GetUserInfo() (ReqUser, int, error) {
+	sid, err := getSid(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
 	}
 	header := map[string]string{"Cookie": fmt.Sprintf("PHPSESSID=%s;", sid)}
 	var req ReqUser
 	httpClient := resty.New()
-	resp, err := httpClient.R().SetHeaders(header).Get(apiUrl)
+	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
 	if resp.StatusCode() != 200 {
 		return req, resp.StatusCode(), errors.New("响应状态码错误")
 	}
@@ -51,6 +51,36 @@ func GetUserInfo(cookieStr, apiUrl string) (ReqUser, int, error) {
 	return req, resp.StatusCode(), err
 }
 
+// RealNameAuthentication 判断用户是否实名
+func (a *Account) RealNameAuthentication() error {
+	times := time.Now().Unix()
+	randStr := guid.S()
+	text := fmt.Sprintf("%d%s%s", times, randStr, a.APISignSecret)
+	newText := sorts(text)
+	ciphertext := gmd5.MustEncryptString(newText)
+
+	body := map[string]interface{}{
+		"time_stamp": fmt.Sprintf("%d", times),
+		"nonce_str":  randStr,
+		"sign":       ciphertext,
+		"userid":     a.UserId,
+	}
+	httpClient := resty.New()
+	var res map[string]interface{}
+	resp, err := httpClient.R().SetBody(body).SetResult(&res).Post(a.APIUriPrefix + GetUserAuthStatusAPI)
+	if err != nil {
+		log := logs.New()
+		log.Error("请求失败", err)
+		return errors.New("请求失败")
+	}
+	if fmt.Sprint(res["status"]) != "y" {
+		log := logs.New()
+		log.Error("用户未实名错误"+resp.String(), errors.New("用户未实名"))
+		return errors.New("用户未实名认证，请先实名认证")
+	}
+	return nil
+}
+
 func sorts(text string) string {
 	var array []string
 	for _, v := range text {
@@ -62,38 +92,4 @@ func sorts(text string) string {
 		newText += v
 	}
 	return newText
-}
-
-// RealNameAuthentication 判断用户是否实名
-func RealNameAuthentication(userId uint, apiUrl, signSecret string) error {
-	times := time.Now().Unix()
-	randStr := guid.S()
-	text := fmt.Sprintf("%d%s%s", times, randStr, signSecret)
-	newText := sorts(text)
-	ciphertext := gmd5.MustEncryptString(newText)
-
-	body := map[string]interface{}{
-		"time_stamp": fmt.Sprintf("%d", times),
-		"nonce_str":  randStr,
-		"sign":       ciphertext,
-		"userid":     userId,
-	}
-	httpClient := resty.New()
-	var res map[string]interface{}
-	resp, err := httpClient.R().SetBody(body).SetResult(&res).Post(apiUrl)
-	if err != nil {
-		log := logs.New()
-		log.Error("请求失败", err)
-		return errors.New("请求失败")
-	}
-	if fmt.Sprint(res["status"]) != "y" {
-		fmt.Println("times=>", times)
-		fmt.Println("------------")
-		fmt.Println(resp.String())
-		fmt.Println(times)
-		log := logs.New()
-		log.Error("用户未实名错误"+resp.String(), errors.New(""))
-		return errors.New("用户未实名认证，请先实名认证")
-	}
-	return nil
 }

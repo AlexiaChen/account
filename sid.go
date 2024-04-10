@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/url"
-	"sort"
 	"strings"
 )
 
@@ -41,16 +40,4 @@ func parseCookieString(cookieStr string) map[string]string {
 	}
 
 	return cookies
-}
-func Sorts(text string) string {
-	var array []string
-	for _, v := range text {
-		array = append(array, string(v))
-	}
-	sort.Strings(array)
-	newText := ""
-	for _, v := range array {
-		newText += v
-	}
-	return newText
 }
