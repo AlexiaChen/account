@@ -67,6 +67,9 @@ func (a *Account) GetUserInfoById() (ReqUser, error) {
 	var result ReqUser
 	httpClient := resty.New()
 	resp, err := httpClient.R().SetHeaders(header).SetBody(data).SetResult(&result).Post(a.APIUriPrefix + GetUserInfoById)
+	if err != nil {
+		return result, fmt.Errorf("请求失败: %s", err)
+	}
 	if resp.StatusCode() != 200 {
 		return result, errors.New("响应状态码错误")
 	}
