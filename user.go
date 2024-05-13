@@ -27,7 +27,7 @@ type ReqUserData struct {
 
 // GetUserInfo 调用用户中心接口获取用户信息
 func (a *Account) GetUserInfo() (ReqUser, int, error) {
-	sid, err := getSid(a.CookieStr)
+	sid, err := GetSid(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
 	}
@@ -56,7 +56,7 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 }
 
 func (a *Account) GetUserInfoTest() (ReqUser, int, error) {
-	sid, err := getSidTest(a.CookieStr)
+	sid, err := GetSidTest(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
 	}

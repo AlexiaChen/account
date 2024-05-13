@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func getSid(cookieStr string) (string, error) {
+func GetSid(cookieStr string) (string, error) {
 	sids, err := url.QueryUnescape(cookieStr)
 	if err != nil {
 		return "", errors.New("url解码失败")
@@ -26,7 +26,7 @@ func getSid(cookieStr string) (string, error) {
 	return newSids, nil
 }
 
-func getSidTest(cookieStr string) (string, error) {
+func GetSidTest(cookieStr string) (string, error) {
 	sids, err := url.QueryUnescape(cookieStr)
 	if err != nil {
 		return "", errors.New("url解码失败")
