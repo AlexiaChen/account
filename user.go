@@ -22,6 +22,7 @@ type ReqUserData struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
+	Phone    string `json:"phone"`
 }
 
 // GetUserInfo 调用用户中心接口获取用户信息
@@ -31,27 +32,56 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 		return ReqUser{}, 0, err
 	}
 	header := map[string]string{"Cookie": fmt.Sprintf("PHPSESSID=%s;", sid)}
-	var req ReqUser
+	var result ReqUser
 	httpClient := resty.New()
 	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
 	if err != nil {
 		return req, 0, fmt.Errorf("请求失败: %s", err)
 	}
 	if resp.StatusCode() != 200 {
-		return req, resp.StatusCode(), errors.New("响应状态码错误")
+		return result, resp.StatusCode(), errors.New("响应状态码错误")
 	}
 	if strings.Contains(resp.String(), "系统发生错误") {
-		return req, resp.StatusCode(), errors.New("系统发生错误")
+		return result, resp.StatusCode(), errors.New("系统发生错误")
 	}
-	err = json.Unmarshal(resp.Body(), &req)
+	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
-		return req, resp.StatusCode(), errors.New("参数解析失败")
+		return result, resp.StatusCode(), errors.New("参数解析失败")
 	}
 
-	if req.Status == "n" {
-		return req, resp.StatusCode(), errors.New("查询失败")
+	if result.Status == "n" {
+		return result, resp.StatusCode(), errors.New("查询失败")
 	}
-	return req, resp.StatusCode(), err
+	return result, resp.StatusCode(), err
+}
+
+// GetUserInfoById 通过UserId获取用户信息，内部接口
+func (a *Account) GetUserInfoById() (ReqUser, error) {
+	header := map[string]string{
+		"User-Agent":  "api-landui-lan",
+		"X-RequestAU": fmt.Sprintf("%d|\t|%s", a.UserId, a.UserName),
+	}
+	data := map[string]interface{}{
+		"id": a.UserId,
+	}
+	var result ReqUser
+	httpClient := resty.New()
+	resp, err := httpClient.R().SetHeaders(header).SetBody(data).SetResult(&result).Post(a.APIUriPrefix + GetUserInfoById)
+	if resp.StatusCode() != 200 {
+		return result, errors.New("响应状态码错误")
+	}
+	if strings.Contains(resp.String(), "系统发生错误") {
+		return result, errors.New("系统发生错误")
+	}
+	err = json.Unmarshal(resp.Body(), &result)
+	if err != nil {
+		return result, errors.New("参数解析失败")
+	}
+
+	if result.Status == "n" {
+		return result, errors.New("查询失败")
+	}
+	return result, err
 }
 
 // RealNameAuthentication 判断用户是否实名

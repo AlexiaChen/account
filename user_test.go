@@ -16,3 +16,15 @@ func TestGetUserInfo(t *testing.T) {
 	fmt.Println(code)
 	fmt.Println(err)
 }
+
+func TestGetUserInfoById(t *testing.T) {
+	account := Account{
+		UserId:       14610,
+		UserName:     "86326328",
+		APIUriPrefix: "https://www.st.landui.cn",
+	}
+	res, err := account.GetUserInfoById()
+
+	fmt.Println(res)
+	fmt.Println(err)
+}
