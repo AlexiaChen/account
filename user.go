@@ -36,7 +36,7 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 	httpClient := resty.New()
 	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
 	if err != nil {
-		return req, 0, fmt.Errorf("请求失败: %s", err)
+		return result, 0, fmt.Errorf("请求失败: %s", err)
 	}
 	if resp.StatusCode() != 200 {
 		return result, resp.StatusCode(), errors.New("响应状态码错误")
