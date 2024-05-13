@@ -1,4 +1,4 @@
-module gitlab.landui.cn/gomod/account
+module github.com/AlexiaChen/account
 
 go 1.20
 
