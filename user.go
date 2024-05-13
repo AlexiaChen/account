@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-resty/resty/v2"
-	"github.com/gogf/gf/v2/crypto/gmd5"
-	"github.com/gogf/gf/v2/util/guid"
-	"gitlab.landui.cn/gomod/logs"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/gogf/gf/v2/crypto/gmd5"
+	"github.com/gogf/gf/v2/util/guid"
 )
 
 type ReqUser struct {
@@ -34,6 +34,9 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 	var req ReqUser
 	httpClient := resty.New()
 	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
+	if err != nil {
+		return req, 0, fmt.Errorf("请求失败: %s", err)
+	}
 	if resp.StatusCode() != 200 {
 		return req, resp.StatusCode(), errors.New("响应状态码错误")
 	}
@@ -69,14 +72,10 @@ func (a *Account) RealNameAuthentication() error {
 	var res map[string]interface{}
 	resp, err := httpClient.R().SetBody(body).SetResult(&res).Post(a.APIUriPrefix + GetUserAuthStatusAPI)
 	if err != nil {
-		log := logs.New()
-		log.Error("请求失败", err)
-		return errors.New("请求失败")
+		return fmt.Errorf("请求失败: %s", err)
 	}
 	if fmt.Sprint(res["status"]) != "y" {
-		log := logs.New()
-		log.Error("用户未实名错误"+resp.String(), errors.New("用户未实名"))
-		return errors.New("用户未实名认证，请先实名认证")
+		return fmt.Errorf("用户未实名认证，请先实名认证 %s", resp.String())
 	}
 	return nil
 }
