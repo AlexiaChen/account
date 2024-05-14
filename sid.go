@@ -8,6 +8,10 @@ import (
 )
 
 func GetSid(cookieStr string) (string, error) {
+	if strings.TrimSpace(cookieStr) == "" {
+		return "", errors.New("CookieStr不能为空")
+	}
+
 	sids, err := url.QueryUnescape(cookieStr)
 	if err != nil {
 		return "", errors.New("url解码失败")
@@ -27,6 +31,9 @@ func GetSid(cookieStr string) (string, error) {
 }
 
 func GetSidTest(cookieStr string) (string, error) {
+	if strings.TrimSpace(cookieStr) == "" {
+		return "", errors.New("CookieStr不能为空")
+	}
 	sids, err := url.QueryUnescape(cookieStr)
 	if err != nil {
 		return "", errors.New("url解码失败")

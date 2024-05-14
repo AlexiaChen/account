@@ -27,6 +27,10 @@ type ReqUserData struct {
 
 // GetUserInfo 调用用户中心接口获取用户信息
 func (a *Account) GetUserInfo() (ReqUser, int, error) {
+	if strings.TrimSpace(a.CookieStr) == "" {
+		return ReqUser{}, 0, errors.New("CookieStr不能为空")
+	}
+
 	sid, err := GetSid(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
@@ -56,6 +60,10 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 }
 
 func (a *Account) GetUserInfoTest() (ReqUser, int, error) {
+	if strings.TrimSpace(a.CookieStr) == "" {
+		return ReqUser{}, 0, errors.New("CookieStr不能为空")
+	}
+
 	sid, err := GetSidTest(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
