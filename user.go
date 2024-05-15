@@ -11,6 +11,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/util/guid"
+	"github.com/shopspring/decimal"
 )
 
 type ReqUser struct {
@@ -18,11 +19,12 @@ type ReqUser struct {
 	Data   ReqUserData `json:"data"`
 }
 type ReqUserData struct {
-	UserId   uint   `json:"id"`
-	UserName string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
+	UserId   uint            `json:"id"`       // 蓝队用户id
+	UserName string          `json:"username"` // 蓝队用户名称
+	Password string          `json:"password"`
+	Email    string          `json:"email"`   //
+	Phone    string          `json:"phone"`   //
+	Balance  decimal.Decimal `json:"balance"` // 用户当前余额
 }
 
 // GetUserInfo 调用用户中心接口获取用户信息
