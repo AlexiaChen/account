@@ -30,26 +30,6 @@ func GetSid(cookieStr string) (string, error) {
 	return newSids, nil
 }
 
-func GetSidTest(cookieStr string) (string, error) {
-	if strings.TrimSpace(cookieStr) == "" {
-		return "", errors.New("CookieStr不能为空")
-	}
-	sids, err := url.QueryUnescape(cookieStr)
-	if err != nil {
-		return "", errors.New("url解码失败")
-	}
-	// 进行 Base64 解码
-	decodedBytes, err := base64.StdEncoding.DecodeString(sids)
-	if err != nil {
-		return "", errors.New("base64解码失败")
-	}
-	newSids := ""
-	newSids = string(decodedBytes)
-	//sid := "7h16o9bfdj7kd56ed205civ4t1"
-	//return sid, nil
-	return newSids, nil
-}
-
 func parseCookieString(cookieStr string) map[string]string {
 	// 解析 Cookie 字符串为 Cookie 的 Map
 	cookies := make(map[string]string)

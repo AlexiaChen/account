@@ -61,39 +61,6 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 	return result, resp.StatusCode(), err
 }
 
-func (a *Account) GetUserInfoTest() (ReqUser, int, error) {
-	if strings.TrimSpace(a.CookieStr) == "" {
-		return ReqUser{}, 0, errors.New("CookieStr不能为空")
-	}
-
-	sid, err := GetSidTest(a.CookieStr)
-	if err != nil {
-		return ReqUser{}, 0, err
-	}
-	header := map[string]string{"Cookie": fmt.Sprintf("PHPSESSID=%s;", sid)}
-	var result ReqUser
-	httpClient := resty.New()
-	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
-	if err != nil {
-		return result, 0, fmt.Errorf("请求失败: %s", err)
-	}
-	if resp.StatusCode() != 200 {
-		return result, resp.StatusCode(), errors.New("响应状态码错误")
-	}
-	if strings.Contains(resp.String(), "系统发生错误") {
-		return result, resp.StatusCode(), errors.New("系统发生错误")
-	}
-	err = json.Unmarshal(resp.Body(), &result)
-	if err != nil {
-		return result, resp.StatusCode(), errors.New("参数解析失败")
-	}
-
-	if result.Status == "n" {
-		return result, resp.StatusCode(), errors.New("查询失败")
-	}
-	return result, resp.StatusCode(), err
-}
-
 // GetUserInfoById 通过UserId获取用户信息，内部接口
 func (a *Account) GetUserInfoById() (ReqUser, error) {
 	header := map[string]string{
