@@ -11,6 +11,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/util/guid"
+	"github.com/shopspring/decimal"
 )
 
 type ReqUser struct {
@@ -18,11 +19,12 @@ type ReqUser struct {
 	Data   ReqUserData `json:"data"`
 }
 type ReqUserData struct {
-	UserId   uint   `json:"id"`
-	UserName string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
+	UserId   uint            `json:"id"`       // 蓝队用户id
+	UserName string          `json:"username"` // 蓝队用户名称
+	Password string          `json:"password"`
+	Email    string          `json:"email"`   //
+	Phone    string          `json:"phone"`   //
+	Balance  decimal.Decimal `json:"balance"` // 用户当前余额
 }
 
 // GetUserInfo 调用用户中心接口获取用户信息
@@ -32,39 +34,6 @@ func (a *Account) GetUserInfo() (ReqUser, int, error) {
 	}
 
 	sid, err := GetSid(a.CookieStr)
-	if err != nil {
-		return ReqUser{}, 0, err
-	}
-	header := map[string]string{"Cookie": fmt.Sprintf("PHPSESSID=%s;", sid)}
-	var result ReqUser
-	httpClient := resty.New()
-	resp, err := httpClient.R().SetHeaders(header).Get(a.APIUriPrefix + GetUserDataAPI)
-	if err != nil {
-		return result, 0, fmt.Errorf("请求失败: %s", err)
-	}
-	if resp.StatusCode() != 200 {
-		return result, resp.StatusCode(), errors.New("响应状态码错误")
-	}
-	if strings.Contains(resp.String(), "系统发生错误") {
-		return result, resp.StatusCode(), errors.New("系统发生错误")
-	}
-	err = json.Unmarshal(resp.Body(), &result)
-	if err != nil {
-		return result, resp.StatusCode(), errors.New("参数解析失败")
-	}
-
-	if result.Status == "n" {
-		return result, resp.StatusCode(), errors.New("查询失败")
-	}
-	return result, resp.StatusCode(), err
-}
-
-func (a *Account) GetUserInfoTest() (ReqUser, int, error) {
-	if strings.TrimSpace(a.CookieStr) == "" {
-		return ReqUser{}, 0, errors.New("CookieStr不能为空")
-	}
-
-	sid, err := GetSidTest(a.CookieStr)
 	if err != nil {
 		return ReqUser{}, 0, err
 	}
