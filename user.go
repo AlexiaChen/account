@@ -21,6 +21,7 @@ type ReqUser struct {
 type ReqUserData struct {
 	UserId   uint            `json:"id"`       // 蓝队用户id
 	UserName string          `json:"username"` // 蓝队用户名称
+	TrueName string          `json:"truename"`// 真实姓名
 	Password string          `json:"password"`
 	Email    string          `json:"email"`   //
 	Phone    string          `json:"phone"`   //
